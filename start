@@ -6,7 +6,7 @@ server
 	root        /cache;
 	autoindex   on;
 
-	location ~ \.(db|sig)$ {
+	location ~ \.(db|sig|files)$ {
 		proxy_pass http://mirrors$request_uri;
 	}
 

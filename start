@@ -1,0 +1,38 @@
+#! /bin/bash
+echo '
+server
+{
+	listen      80;
+	root        /cache;
+	autoindex   on;
+
+	location ~ \.(db|sig)$ {
+		proxy_pass http://mirrors$request_uri;
+	}
+
+	location ~ \.tar\.xz$ {
+		try_files $uri @pkg_mirror;
+	}
+
+	location @pkg_mirror {
+		proxy_store    on;
+		proxy_redirect off;
+		proxy_store_access  user:rw group:rw all:r;
+		proxy_next_upstream error timeout http_404;
+		proxy_pass          http://mirrors$request_uri;
+	}
+}
+
+upstream mirrors {' >/etc/nginx/conf.d/default.conf
+
+for MIRROR in $MIRROR; do
+echo "	server $MIRROR;" >>/etc/nginx/conf.d/default.conf
+done
+
+for MIRROR in $BACKUP; do
+echo "	server $MIRROR backup;" >>/etc/nginx/conf.d/default.conf
+done
+
+echo '}' >>/etc/nginx/conf.d/default.conf
+
+exec nginx -g "daemon off;"

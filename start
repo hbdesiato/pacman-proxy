@@ -10,7 +10,7 @@ server
 		proxy_pass http://mirrors$request_uri;
 	}
 
-	location ~ \.tar\.xz$ {
+	location ~ \.tar\.(xz|zst)$ {
 		try_files $uri @pkg_mirror;
 	}
 
